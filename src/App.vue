@@ -11,6 +11,10 @@ body,
 #app {
   height: 100%;
   width: 100%;
-  background-color: #3a7890;
+}
+*{
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 </style>

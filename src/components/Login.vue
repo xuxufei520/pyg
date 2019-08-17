@@ -63,20 +63,23 @@ export default {
 }
 </script>
 
-<style lang='scss'>
+<style lang='scss' scope>
 .login {
+  height: 100%;
+  background-color: #3a7890;
+  overflow: hidden;
+  .el-form {
   background-color: #fff;
   width: 400px;
   margin: 0 auto;
-  margin-top: 120px;
+  margin-top: 140px;
   padding: 30px;
   padding-top: 100px;
   border-radius: 10px;
-  .el-form {
-    position: relative;
+  position: relative;
     .logo {
       position: absolute;
-      top: -150px;
+      top: -70px;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 50%;
