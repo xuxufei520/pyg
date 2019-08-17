@@ -1,7 +1,7 @@
 <template>
-  <div class="index">
+
     <!-- 大容器 -->
-    <el-container class="top-container">
+    <el-container class="index">
       <!-- 头部 -->
       <el-header>
         <div class="logo">
@@ -19,7 +19,7 @@
       <el-container class="second-container">
         <!-- 左侧 -->
         <el-aside width="200px">
-          <el-menu default-active="1-1" class="el-menu-vertical-demo"  @open="handleOpen" @close="handleClose" background-color='#545c64' text-color='#fff' active-text-color='orange' unique-opened=true>
+          <el-menu default-active="1-1" class="el-menu-vertical-demo"  @open="handleOpen" @close="handleClose" background-color='#545c64' text-color='#fff' active-text-color='orange' unique-opened>
           <el-submenu index="1">
               <template slot="title">
                  <i class="el-icon-location"></i>用户管理
@@ -56,17 +56,18 @@
           </el-menu>
         </el-aside>
         <!-- 主体 -->
-        <el-main>Main</el-main>
+        <el-main>
+         <router-view></router-view>
+        </el-main>
       </el-container>
     </el-container>
-  </div>
 </template>
 
 <script>
 export default {
   data () {
     return {
-      // isCollapse: true
+      input1: ''
     }
   },
   methods: {
@@ -80,16 +81,12 @@ export default {
 }
 </script>
 
-<style lang='scss' scope>
+<style lang='scss' scoped>
 .index {
   height: 100%;
-  .top-container {
-    height: 100%;
-  }
   // 顶部
   .el-header {
     background-color: #d8d8d8;
-    color: #333;
     text-align: center;
     line-height: 60px;
     display: flex;
@@ -112,16 +109,11 @@ export default {
   }
   //左侧和主体
   .second-container {
-    height: 100%;
     // 左侧边栏
     .el-aside {
       background-color: #545c64;
       color: #fff;
-      line-height: 200px;
-      .el-menu {
-        // border: 0;
-
-      }
+      // line-height: 200px;
       .el-menu-vertical-demo:not(.el-menu--collapse) {
         width: 200px;
         min-height: 400px;
@@ -130,9 +122,7 @@ export default {
     // 主体
     .el-main {
       background-color: #e9eef3;
-      color: #333;
-      text-align: center;
-      line-height: 160px;
+
     }
   }
 }
