@@ -12,47 +12,28 @@
         </div>
         <div class="msg">
           <span class="welcome">欢迎光临~</span>
-          <a href class="logout">退出</a>
+          <a href="javascript:;" @click='logout' class="logout">退出</a>
         </div>
       </el-header>
       <!-- 左侧和主体大容器 -->
       <el-container class="second-container">
         <!-- 左侧 -->
         <el-aside width="200px">
-          <el-menu default-active="1-1" class="el-menu-vertical-demo"  @open="handleOpen" @close="handleClose" background-color='#545c64' text-color='#fff' active-text-color='orange' unique-opened>
+          <el-menu default-active="1-1" class="el-menu-vertical-demo"  background-color='#545c64' text-color='#fff' active-text-color='orange' unique-opened router>
           <el-submenu index="1">
-              <template slot="title">
+              <template v-slot:title>
                  <i class="el-icon-location"></i>用户管理
               </template>
-              <el-menu-item index="1-1"><i class="el-icon-menu"></i>用户列表</el-menu-item>
+              <el-menu-item index="/users"><i class="el-icon-menu"></i>用户列表</el-menu-item>
             </el-submenu>
             <el-submenu index="2">
-              <template slot="title">
+              <template v-slot:title>
                 <i class="el-icon-location"></i>权限管理
               </template>
-              <el-menu-item index="2-1"><i class="el-icon-menu"></i>角色列表</el-menu-item>
-              <el-menu-item index="2-2"><i class="el-icon-menu"></i>权限列表</el-menu-item>
+              <el-menu-item index="/users"><i class="el-icon-menu"></i>角色列表</el-menu-item>
+              <el-menu-item index="/users"><i class="el-icon-menu"></i>权限列表</el-menu-item>
             </el-submenu>
-            <el-submenu index="3">
-              <template slot="title">
-                <i class="el-icon-location"></i>商品管理
-              </template>
-              <el-menu-item index="3-1"><i class="el-icon-menu"></i>商品类表</el-menu-item>
-              <el-menu-item index="3-2"><i class="el-icon-menu"></i>分类参数</el-menu-item>
-              <el-menu-item index="3-3"><i class="el-icon-menu"></i>商品分类</el-menu-item>
-            </el-submenu>
-            <el-submenu index="4">
-              <template slot="title">
-                <i class="el-icon-location"></i>订单管理
-              </template>
-              <el-menu-item index="4-1"><i class="el-icon-menu"></i>订单列表</el-menu-item>
-            </el-submenu>
-            <el-submenu index="5">
-              <template slot="title">
-                <i class="el-icon-location"></i>数据统计
-              </template>
-              <el-menu-item index="5-1"><i class="el-icon-menu"></i>数据列表</el-menu-item>
-            </el-submenu>
+
           </el-menu>
         </el-aside>
         <!-- 主体 -->
@@ -64,21 +45,23 @@
 </template>
 
 <script>
+
 export default {
-  data () {
-    return {
-      input1: ''
-    }
-  },
+
   methods: {
-    handleOpen (key, keyPath) {
-      console.log(key, keyPath)
-    },
-    handleClose (key, keyPath) {
-      console.log(key, keyPath)
+    logout () {
+      // 模态框 清token
+      this.$confirm('此操作将退出登录状态, 是否继续?', '提示', {
+        type: 'warning'
+      }).then(() => {
+        this.$message.success('退出成功')
+        localStorage.removeItem('token')
+        this.$router.push('/login')
+      }).catch(() => {
+        this.$message('取消退出')
+      })
     }
-  }
-}
+  } }
 </script>
 
 <style lang='scss' scoped>
@@ -122,7 +105,6 @@ export default {
     // 主体
     .el-main {
       background-color: #e9eef3;
-
     }
   }
 }

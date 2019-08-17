@@ -44,8 +44,10 @@ export default {
         // 验证成功就提交表单
         console.log('验证成功,可以发送axios')
         axios.post('http://localhost:8888/api/private/v1/login', this.form).then(res => {
-          const { meta } = res.data
-          // console.log(meta)
+          // console.log(res.data.data.token)
+          const { meta, data } = res.data
+          // console.log(data.token)
+          localStorage.setItem('token', data.token)
           if (meta.status === 200) {
             this.$message({
               message: meta.msg,
