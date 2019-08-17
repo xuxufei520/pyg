@@ -15,15 +15,15 @@
     </div>
     <!-- 表格 -->
     <el-table :data="userList" border style="width: 100%">
-      <el-table-column prop="username" label="姓名" align='center'></el-table-column>
-      <el-table-column prop="email" label="邮箱" align='center'></el-table-column>
-      <el-table-column prop="mobile" label="电话" align='center'></el-table-column>
-      <el-table-column label="用户状态" align='center'>
+      <el-table-column prop="username" label="姓名" align="center"></el-table-column>
+      <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
+      <el-table-column prop="mobile" label="电话" align="center"></el-table-column>
+      <el-table-column label="用户状态" align="center">
         <template v-slot:default="{row}">
           <el-switch v-model="row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="操作"  width="250" align='center'>
+      <el-table-column label="操作" width="250" align="center">
         <template v-slot:default="{row}">
           <el-button type="primary" size="small" plain icon="el-icon-edit"></el-button>
           <el-button type="danger" size="small" plain icon="el-icon-delete"></el-button>
@@ -31,6 +31,18 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页 -->
+    <div class="block">
+      <el-pagination background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="pagenum"
+        :page-sizes="[2, 4, 6, 8]"
+        :page-size="pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
+    </div>
   </div>
 </template>
 
@@ -46,7 +58,8 @@ export default {
       userList: [],
       query: '',
       pagenum: 1,
-      pagesize: 3
+      pagesize: 4,
+      total: 0
     }
   },
   methods: {
@@ -67,8 +80,20 @@ export default {
           const { data, meta } = res.data
           if (meta.status === 200) {
             this.userList = data.users
+            this.total = data.total
           }
         })
+    },
+    // 分页
+    handleSizeChange (val) {
+      console.log(`每页 ${val} 条`)
+      this.pagesize = val
+      this.getUsers()
+    },
+    handleCurrentChange (val) {
+      console.log(`当前页: ${val}`)
+      this.pagenum = val
+      this.getUsers()
     }
   }
 }
@@ -92,6 +117,10 @@ export default {
   }
   .el-input-group {
     width: 300px;
+  }
+  //分页符
+  .block{
+    padding-top: 10px;
   }
 }
 </style>
