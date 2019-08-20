@@ -30,8 +30,8 @@
               <template v-slot:title>
                 <i class="el-icon-location"></i>权限管理
               </template>
-              <el-menu-item index="/users"><i class="el-icon-menu"></i>角色列表</el-menu-item>
-              <el-menu-item index="/users"><i class="el-icon-menu"></i>权限列表</el-menu-item>
+              <el-menu-item index="/roles"><i class="el-icon-menu"></i>角色列表</el-menu-item>
+              <el-menu-item index="/rights"><i class="el-icon-menu"></i>权限列表</el-menu-item>
             </el-submenu>
 
           </el-menu>

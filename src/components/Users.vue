@@ -7,7 +7,7 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 输入框 -->
-    <div style="margin-top: 15px;">
+    <div style="margin-top: 15px;margin-bottom: 15px">
       <el-input placeholder="请输入搜索关键字" v-model="query" class="input-with-select">
         <el-button slot="append" icon="el-icon-search" @click="searchUsers"></el-button>
       </el-input>
@@ -30,20 +30,8 @@
       </el-table-column>
       <el-table-column label="操作" width="250" align="center">
         <template v-slot:default="{row}">
-          <el-button
-            type="primary"
-            size="small"
-            plain
-            icon="el-icon-edit"
-            @click="updateUser(row.id)"
-          ></el-button>
-          <el-button
-            type="danger"
-            size="small"
-            plain
-            icon="el-icon-delete"
-            @click="delUser(row.id)"
-          ></el-button>
+          <el-button  type="primary" size="small" plain icon="el-icon-edit" @click="updateUser(row.id)"></el-button>
+          <el-button type="danger" size="small" plain icon="el-icon-delete" @click="delUser(row.id)" ></el-button>
           <el-button type="success" size="small" plain icon="el-icon-check" @click="role(row)">分配角色</el-button>
         </template>
       </el-table-column>
@@ -358,7 +346,9 @@ export default {
       console.log(this.roleForm.rid)
       if (this.roleForm.rid === '') return this.$message.error('请选择角色')
       this.dialogRoleFormVisible = false
-      const { meta } = await this.$axios.put(`users/${this.roleForm.id}/role`, { rid: this.roleForm.rid })
+      const { meta } = await this.$axios.put(`users/${this.roleForm.id}/role`, {
+        rid: this.roleForm.rid
+      })
       if (meta.status === 200) {
         this.$message.success('角色设置成功')
         this.getUsers()
@@ -381,7 +371,6 @@ export default {
   //输入框
   .el-input {
     margin-right: 10px;
-    margin-bottom: 10px;
   }
   .input-with-select .el-input-group__prepend {
     background-color: #fff;
