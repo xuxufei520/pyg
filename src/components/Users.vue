@@ -50,7 +50,7 @@
       ></el-pagination>
     </div>
     <!-- 添加用户dialog弹框 -->
-    <el-dialog title="添加用户" :visible.sync="dialogAddFormVisible" width="40%">
+    <el-dialog title="添加用户" :visible.sync="dialogAddFormVisible" width="40%" @closed='resetForm("addForm")'>
       <!-- form表单 -->
       <el-form :model="addForm" status-icon :rules="addFormRules" ref="addForm" label-width="100px">
         <el-form-item label="用户名" prop="username">
@@ -262,7 +262,7 @@ export default {
           this.total++
           this.pagenum = Math.ceil(this.total / this.pagesize)
           this.getUsers()
-          this.$refs[addForm].resetFields()
+          // this.$refs[addForm].resetFields()
         } else {
           this.$message.error(meta.msg)
         }
@@ -355,6 +355,10 @@ export default {
       } else {
         this.$message.error('角色设置失败')
       }
+    },
+    // 关闭模态框的时候清空表单
+    resetForm (formName) {
+      this.$refs[formName].resetFields()
     }
   }
 }
@@ -362,12 +366,6 @@ export default {
 
 <style lang='scss' scoped>
 .users {
-  //面包屑
-  .el-breadcrumb {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ccc;
-  }
   //输入框
   .el-input {
     margin-right: 10px;

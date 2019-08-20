@@ -13,38 +13,26 @@
     <!-- 表格 -->
     <el-table :data="tableData" style="width: 100%">
       <el-table-column type="expand">
-        <template v-slot:default="props">
-          <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="商品名称">
-              <span>{{ props.row.username }}</span>
-            </el-form-item>
-            <el-form-item label="所属店铺">
-              <span>{{ props.row.shop }}</span>
-            </el-form-item>
-            <el-form-item label="商品 ID">
-              <span>{{ props.row.num }}</span>
-            </el-form-item>
-            <el-form-item label="店铺 ID">
-              <span>{{ props.row.shopId }}</span>
-            </el-form-item>
-            <el-form-item label="商品分类">
-              <span>{{ props.row.category }}</span>
-            </el-form-item>
-            <el-form-item label="店铺地址">
-              <span>{{ props.row.address }}</span>
-            </el-form-item>
-            <el-form-item label="商品描述">
-              <span>{{ props.row.desc }}</span>
-            </el-form-item>
-          </el-form>
+        <template v-slot:default="{row}">
+          <el-row class='item' v-for="item in row.children" :key="item.id">
+            <el-col :span="4"><el-tag closable @close='delRight(row,item.id)'>{{item.authName}}</el-tag><i class="el-icon-arrow-right"></i></el-col>
+            <el-col :span="20">
+              <el-row class='item2' v-for='item2 in item.children' :key='item2.id'>
+                   <el-col :span="4"><el-tag type="success" closable @close='delRight(row,item2.id)'>{{item2.authName}}</el-tag><i class="el-icon-arrow-right"></i></el-col>
+                    <el-col :span="20">
+                      <el-tag class="item3" v-for='item3 in item2.children' :key='item3.id' type="warning" closable @close='delRight(row,item3.id)'>{{item3.authName}}</el-tag>
+                    </el-col>
+              </el-row>
+            </el-col>
+          </el-row>
         </template>
       </el-table-column>
-      <el-table-column type="index"  width="50"></el-table-column>
-      <el-table-column label="角色名称" prop="username"></el-table-column>
-      <el-table-column label="描述" prop="desc"></el-table-column>
+      <el-table-column type="index" width="50"></el-table-column>
+      <el-table-column label="角色名称" prop="roleName"></el-table-column>
+      <el-table-column label="描述" prop="roleDesc"></el-table-column>
       <el-table-column label="操作" prop="todo">
         <template v-slot:default="{row}">
-          <el-button  type="primary" size="small" plain icon="el-icon-edit"></el-button>
+          <el-button type="primary" size="small" plain icon="el-icon-edit"></el-button>
           <el-button type="danger" size="small" plain icon="el-icon-delete"></el-button>
           <el-button type="success" size="small" plain icon="el-icon-check">分配权限</el-button>
         </template>
@@ -58,51 +46,58 @@ export default {
   data () {
     return {
       dialogAddFormVisible: false,
-      tableData: [{
-        num: '12987122',
-        username: '好滋好味鸡蛋仔',
-        category: '江浙小吃、小吃零食',
-        desc: '荷兰优质淡奶，奶香浓而不腻',
-        address: '上海市普陀区真北路',
-        shop: '王小虎夫妻店',
-        shopId: '10333',
-        todo: ''
-      }]
+      tableData: [
+        {
+          id: 0, // rid
+          children: [],
+          roleName: '',
+          roleDesc: ''
+        }
+      ]
     }
-  },
-  methods: {
-    async getRolesList () {
-      const res = await this.$axios.get('roles')
-      console.log(res)
-    }
-
   },
   created () {
     this.getRolesList()
+  },
+  methods: {
+    // 渲染列表
+    async getRolesList () {
+      const { data, meta } = await this.$axios.get('roles')
+      // console.log(data)
+      if (meta.status === 200) {
+        this.tableData = data
+      }
+    },
+    // 删除权限
+    async delRight (row, rightId) {
+      // 这里传入整个row而不是只传id 是因为删除操作后 row(row.children)重新赋值 实现双向绑定(局部更新) 避免刷新页面
+      // console.log(row)
+      // console.log(row.id)
+      const { meta, data } = await this.$axios.delete(`roles/${row.id}/rights/${rightId}`)
+      if (meta.status === 200) {
+        // console.log(data)
+        row.children = data
+        this.$message.success(meta.msg)
+      } else {
+        this.$message.error(meta.msg)
+      }
+    }
   }
 }
 </script>
 
 <style lang='scss' scoped>
 .roles {
-  //面包屑
-  .el-breadcrumb {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ccc;
-  }
-  // 表格
-  .demo-table-expand {
-    font-size: 0;
-  }
-  .demo-table-expand label {
-    width: 90px;
-    color: #99a9bf;
-  }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 50%;
-  }
+  // 表格内嵌部分
+  .item{
+    padding: 10px 0;
+    border-bottom: 1px dotted #ccc;
+    .item2{
+      // padding: 0 0 5px;
+      .item3{
+        margin: 0 5px 5px 0;
+        }
+      }
+    }
 }
 </style>
