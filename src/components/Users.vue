@@ -223,6 +223,8 @@ export default {
           // console.log(data, meta)
           this.userList = data.users
           this.total = data.total
+        } else {
+          this.$message.error(meta.msg)
         }
       } catch (error) {
         console.log(error)
@@ -247,6 +249,8 @@ export default {
       if (meta.status === 200) {
         // console.log('修改成功')
         this.$message.success(meta.msg)
+      } else {
+        this.$message.error(meta.msg)
       }
     },
     // 添加用户
@@ -283,6 +287,8 @@ export default {
           if (this.userList.length === 1 && this.pagenum > 1) {
             this.pagenum--
           }
+        } else {
+          this.$message.error(meta.msg)
         }
         this.getUsers()
       } catch (error) {
@@ -301,6 +307,8 @@ export default {
       // console.log(data, meta)
       if (meta.status === 200) {
         this.updateForm = data
+      } else {
+        this.$message.error(meta.msg)
       }
     },
     // 修改完成用户信息
@@ -315,6 +323,8 @@ export default {
         if (meta.status === 200) {
           this.dialogUpdateFormVisible = false
           this.getUsers()
+        } else {
+          this.message.error(meta.msg)
         }
       } catch (error) {
         console.log(error)
@@ -322,6 +332,7 @@ export default {
     },
     // 分配角色功能
     async role (row) {
+      // 数据回显
       this.dialogRoleFormVisible = true
       this.roleForm.rid = ''
       // axios获取当前用户信息
@@ -341,7 +352,7 @@ export default {
         this.roleForm.options = data2
       }
     },
-    // 点击确定 效验内容 发送axios 然后还原表单(这个功能在上边点击显示模态框中渲染前首先还原)
+    // 分配角色 点击确定 效验内容 发送axios 然后还原表单(这个功能在上边点击显示模态框中渲染前首先还原)
     async submitRole () {
       console.log(this.roleForm.rid)
       if (this.roleForm.rid === '') return this.$message.error('请选择角色')
@@ -350,10 +361,10 @@ export default {
         rid: this.roleForm.rid
       })
       if (meta.status === 200) {
-        this.$message.success('角色设置成功')
+        this.$message.success(meta.msg)
         this.getUsers()
       } else {
-        this.$message.error('角色设置失败')
+        this.$message.error(meta.msg)
       }
     },
     // 关闭模态框的时候清空表单
