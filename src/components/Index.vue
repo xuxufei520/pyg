@@ -20,9 +20,9 @@
         <!-- 左侧 -->
         <el-aside width="200px">
           <el-menu default-active="1-1" class="el-menu-vertical-demo"  background-color='#545c64' text-color='#fff' active-text-color='orange' unique-opened router>
-          <el-submenu index="1">
+            <el-submenu index="1">
               <template v-slot:title>
-                 <i class="el-icon-location"></i>用户管理
+                <i class="el-icon-location"></i>用户管理
               </template>
               <el-menu-item index="/users"><i class="el-icon-menu"></i>用户列表</el-menu-item>
             </el-submenu>
@@ -33,7 +33,6 @@
               <el-menu-item index="/roles"><i class="el-icon-menu"></i>角色列表</el-menu-item>
               <el-menu-item index="/rights"><i class="el-icon-menu"></i>权限列表</el-menu-item>
             </el-submenu>
-
           </el-menu>
         </el-aside>
         <!-- 主体 -->
@@ -97,9 +96,8 @@ export default {
       background-color: #545c64;
       color: #fff;
       // line-height: 200px;
-      .el-menu-vertical-demo:not(.el-menu--collapse) {
-        width: 200px;
-        min-height: 400px;
+      .el-menu-vertical-demo{
+        border: 0;
       }
     }
     // 主体
