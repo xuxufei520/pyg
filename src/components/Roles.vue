@@ -8,7 +8,7 @@
     </el-breadcrumb>
     <!-- 输入框 -->
     <div style="margin-top: 15px;margin-bottom: 15px">
-      <el-button type="success" plain @click="dialogAddFormVisible = true">添加角色</el-button>
+      <el-button type="success" plain @click="addRoles">添加角色</el-button>
     </div>
     <!-- 表格 -->
     <el-table :data="rolesList" style="width: 100%">
@@ -32,8 +32,8 @@
       <el-table-column label="描述" prop="roleDesc"></el-table-column>
       <el-table-column label="操作">
         <template v-slot:default="{row}">
-          <el-button type="primary" size="small" plain icon="el-icon-edit"></el-button>
-          <el-button type="danger" size="small" plain icon="el-icon-delete"></el-button>
+          <el-button type="primary" size="small" plain icon="el-icon-edit" @click="updateRoles(row)"></el-button>
+          <el-button type="danger" size="small" plain icon="el-icon-delete" @click="delRoles(row.id)"></el-button>
           <el-button type="success" size="small" plain icon="el-icon-check" @click="assignRight(row)">分配权限</el-button>
         </template>
       </el-table-column>
@@ -47,6 +47,22 @@
         <el-button type="primary" @click="assignRoles">分 配</el-button>
       </span>
     </el-dialog>
+    <!-- 修改角色模态框 -->
+    <el-dialog :title="dialogTitle" :visible.sync="updateDialog" width="40%" @closed='clearBox("rolesForm")'>
+      <!-- 表单 -->
+      <el-form :model="rolesForm" :rules="updateRules" ref="rolesForm" label-width="100px" class="demo-rolesForm">
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="rolesForm.roleName"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop="roleDesc">
+          <el-input v-model="rolesForm.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+      <el-button @click="updateDialog = false">取 消</el-button>
+      <el-button type="primary" @click="updateRolesOk">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -58,6 +74,10 @@ export default {
       rid: 0,
       // 分配权限弹框
       assignDialog: false,
+      // 修改用户模态框
+      updateDialog: false,
+      // 复用的模态框标题
+      dialogTitle: '',
       // 权限列表
       rolesList: [
         {
@@ -80,8 +100,18 @@ export default {
       ],
       // 树状默认选中
       checkedBox: [],
-      // 修改后的权限列表 axios用
-      newRightList: []
+      // 提交的全部选中数据
+      SendCheckedBox: [],
+      // 修改用户
+      rolesForm: {
+        roleName: '',
+        roleDesc: ''
+      },
+      // 修改用户
+      updateRules: {
+        roleName: [{ required: true, message: '角色名称不为空', trigger: 'blur' }],
+        roleDesc: [{ required: true, message: '角色描述不为空', trigger: 'blur' }]
+      }
 
     }
   },
@@ -140,16 +170,17 @@ export default {
     // 分配权限的模态框中的树被选中或取消时
     checkedRoles (data, checked) {
       // console.log(this.checkedBox)
-      // console.log(data, checked)
+      console.log(data, checked)
       this.checkedBox = checked.checkedKeys
+      this.SendCheckedBox = [...checked.checkedKeys, ...checked.halfCheckedKeys]
     },
     // // 请求后台分配权限
     async assignRoles () {
       this.assignDialog = false
-      console.log(this.checkedBox)
-      const str = this.checkedBox.join(',')
-      console.log(this.rid, str)
-      const { meta } = await this.$axios.post(`roles/${this.rid}/rights`, { rids: str })
+      console.log(this.SendCheckedBox)
+      const rids = this.SendCheckedBox.join(',')
+      console.log(this.rid, rids)
+      const { meta } = await this.$axios.post(`roles/${this.rid}/rights`, { rids })
       console.log(meta)
       if (meta.status === 200) {
         this.$message.success(meta.msg)
@@ -159,9 +190,59 @@ export default {
       }
     },
     // 模态框关闭时 清空当前CheckBox
-    clearBox () {
+    clearBox (formName) {
       this.checkedBox = []
       this.rid = 0
+      this.$refs[formName].resetFields()
+    },
+    // 删除角色
+    async delRoles (id) {
+      console.log(id)
+      const { meta } = await this.$axios.delete(`roles/${id}`)
+      // console.log(data, meta)
+      if (meta.status === 200) {
+        this.$message.success(meta.msg)
+        this.getRolesList()
+      } else {
+        this.$message.error(meta.msg)
+      }
+    },
+    // 修改角色
+    updateRoles (row) {
+      console.log(row)
+      this.dialogTitle = '修改角色'
+      this.updateDialog = true
+      this.rid = row.id
+      this.rolesForm.roleName = row.roleName
+      this.rolesForm.roleDesc = row.roleDesc
+    },
+    // 确认修改
+    async updateRolesOk () {
+      this.updateDialog = false
+      if (this.dialogTitle === '修改角色') {
+        const { data, meta } = await this.$axios.put(`roles/${this.rid}`, this.rolesForm)
+        console.log(data)
+        if (meta.status === 200) {
+          this.$message.success(meta.msg)
+          this.getRolesList()
+        } else {
+          this.$message.error(meta.msg)
+        }
+      }
+      if (this.dialogTitle === '添加角色') {
+        const { data, meta } = await this.$axios.post(`roles`, this.rolesForm)
+        console.log(data, meta)
+        if (meta.status === 201) {
+          this.$message.success(meta.msg)
+        } else {
+          this.$message.error(meta.msg)
+        }
+      }
+    },
+    // 添加角色
+    addRoles () {
+      this.dialogTitle = '添加角色'
+      this.updateDialog = true
     }
   }
 }
