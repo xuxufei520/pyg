@@ -34,18 +34,17 @@
         <template v-slot:default="{row}">
           <el-button type="primary" size="small" plain icon="el-icon-edit"></el-button>
           <el-button type="danger" size="small" plain icon="el-icon-delete"></el-button>
-          <el-button type="success" size="small" plain icon="el-icon-check" @click="assignRight(row.id)">分配权限</el-button>
+          <el-button type="success" size="small" plain icon="el-icon-check" @click="assignRight(row)">分配权限</el-button>
         </template>
       </el-table-column>
     </el-table>
     <!-- 分配权限弹框 -->
-    <el-dialog  title="分配权限" :visible.sync="assignDialog" width="40%">
+    <el-dialog  title="分配权限" :visible.sync="assignDialog" width="40%" @closed='clearBox'>
       <!-- 树状控件 -->
-      <el-tree :data="assignRightTree" show-checkbox  :props="defaultProps" node-key='id' default-expand-all
-      :default-checked-keys="checkedBox"></el-tree>
+      <el-tree ref="tree" :data="assignRightTree" show-checkbox  :props="defaultProps" node-key='id' default-expand-all @check='checkedRoles' :default-checked-keys="checkedBox"></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="assignDialog = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">分 配</el-button>
+        <el-button type="primary" @click="assignRoles">分 配</el-button>
       </span>
     </el-dialog>
   </div>
@@ -55,6 +54,8 @@
 export default {
   data () {
     return {
+      // 当前角色rid
+      rid: 0,
       // 分配权限弹框
       assignDialog: false,
       // 权限列表
@@ -78,7 +79,9 @@ export default {
         }
       ],
       // 树状默认选中
-      checkedBox: []
+      checkedBox: [],
+      // 修改后的权限列表 axios用
+      newRightList: []
 
     }
   },
@@ -108,8 +111,9 @@ export default {
         this.$message.error(meta.msg)
       }
     },
-    // 分配权限
-    async assignRight (rid) {
+    // 分配权限模态框
+    async assignRight (row) {
+      this.rid = row.id
       this.assignDialog = true
       // 请求权限列表 并回显数据
       const { data, meta } = await this.$axios.get('rights/tree')
@@ -118,14 +122,46 @@ export default {
         // 渲染树状图
         this.assignRightTree = data
         // 数据回显
-        const currentRolesRightList = this.rolesList.filter(v => v.id === rid)
-        console.log(currentRolesRightList) // 当前操作的角色列表(角色信息,二级为权限说明)
-        // checkedBox: []  // 默认选中有所有id的选项  三维数组
-        // const firstRight = currentRolesRightList[0].children  //拿到id
-        this.checkedBox = []
+        // console.log(row)
+        row.children.forEach(item => {
+          item.children.forEach(item2 => {
+            item2.children.forEach(item3 => {
+              this.checkedBox.push(item3.id)
+              // console.log(item3.id)
+            })
+          })
+        })
+        //  遍历后
+        // console.log(this.checkedBox)
       } else {
         this.$message.error(meta.msg)
       }
+    },
+    // 分配权限的模态框中的树被选中或取消时
+    checkedRoles (data, checked) {
+      // console.log(this.checkedBox)
+      // console.log(data, checked)
+      this.checkedBox = checked.checkedKeys
+    },
+    // // 请求后台分配权限
+    async assignRoles () {
+      this.assignDialog = false
+      console.log(this.checkedBox)
+      const str = this.checkedBox.join(',')
+      console.log(this.rid, str)
+      const { meta } = await this.$axios.post(`roles/${this.rid}/rights`, { rids: str })
+      console.log(meta)
+      if (meta.status === 200) {
+        this.$message.success(meta.msg)
+        this.getRolesList()
+      } else {
+        this.$message.error(meta.msg)
+      }
+    },
+    // 模态框关闭时 清空当前CheckBox
+    clearBox () {
+      this.checkedBox = []
+      this.rid = 0
     }
   }
 }
