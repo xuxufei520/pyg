@@ -11,7 +11,7 @@
       <el-button type="success" plain @click="dialogAddFormVisible = true">添加角色</el-button>
     </div>
     <!-- 表格 -->
-    <el-table :data="tableData" style="width: 100%">
+    <el-table :data="rolesList" style="width: 100%">
       <el-table-column type="expand">
         <template v-slot:default="{row}">
           <el-row class='item' v-for="item in row.children" :key="item.id">
@@ -30,7 +30,7 @@
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="角色名称" prop="roleName"></el-table-column>
       <el-table-column label="描述" prop="roleDesc"></el-table-column>
-      <el-table-column label="操作" prop="todo">
+      <el-table-column label="操作">
         <template v-slot:default="{row}">
           <el-button type="primary" size="small" plain icon="el-icon-edit"></el-button>
           <el-button type="danger" size="small" plain icon="el-icon-delete"></el-button>
@@ -39,11 +39,13 @@
       </el-table-column>
     </el-table>
     <!-- 分配权限弹框 -->
-    <el-dialog  title="提示" :visible.sync="assignDialog" width="40%">
-      <span>这是一段信息</span>
+    <el-dialog  title="分配权限" :visible.sync="assignDialog" width="40%">
+      <!-- 树状控件 -->
+      <el-tree :data="assignRightTree" show-checkbox  :props="defaultProps" node-key='id' default-expand-all
+      :default-checked-keys="checkedBox"></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="assignDialog = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="dialogVisible = false">分 配</el-button>
       </span>
     </el-dialog>
   </div>
@@ -55,14 +57,29 @@ export default {
     return {
       // 分配权限弹框
       assignDialog: false,
-      tableData: [
+      // 权限列表
+      rolesList: [
         {
           id: 0, // rid
           children: [],
           roleName: '',
           roleDesc: ''
         }
-      ]
+      ],
+      // 树状控件配置和数据
+      defaultProps: {
+        children: 'children',
+        label: 'authName'
+      },
+      assignRightTree: [
+        {
+          id: 0, // rightId
+          children: []
+        }
+      ],
+      // 树状默认选中
+      checkedBox: []
+
     }
   },
   created () {
@@ -74,7 +91,7 @@ export default {
       const { data, meta } = await this.$axios.get('roles')
       // console.log(data)
       if (meta.status === 200) {
-        this.tableData = data
+        this.rolesList = data
       }
     },
     // 删除权限
@@ -98,7 +115,14 @@ export default {
       const { data, meta } = await this.$axios.get('rights/tree')
       if (meta.status === 200) {
         console.log(data)
-        // flag
+        // 渲染树状图
+        this.assignRightTree = data
+        // 数据回显
+        const currentRolesRightList = this.rolesList.filter(v => v.id === rid)
+        console.log(currentRolesRightList) // 当前操作的角色列表(角色信息,二级为权限说明)
+        // checkedBox: []  // 默认选中有所有id的选项  三维数组
+        // const firstRight = currentRolesRightList[0].children  //拿到id
+        this.checkedBox = []
       } else {
         this.$message.error(meta.msg)
       }
