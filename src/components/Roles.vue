@@ -76,6 +76,7 @@ export default {
       assignDialog: false,
       // 修改用户模态框
       updateDialog: false,
+
       // 复用的模态框标题
       dialogTitle: '',
       // 权限列表
@@ -198,13 +199,21 @@ export default {
     // 删除角色
     async delRoles (id) {
       console.log(id)
-      const { meta } = await this.$axios.delete(`roles/${id}`)
-      // console.log(data, meta)
-      if (meta.status === 200) {
-        this.$message.success(meta.msg)
-        this.getRolesList()
-      } else {
-        this.$message.error(meta.msg)
+      try {
+        await this.$confirm('你确定要删除该角色吗?', '温馨提示', { type: 'warning' })
+        const { meta } = await this.$axios.delete(`roles/${id}`)
+        // console.log(data, meta)
+        if (meta.status === 200) {
+          this.$message.success(meta.msg)
+          this.getRolesList()
+        } else {
+          this.$message.error(meta.msg)
+        }
+      } catch (error) {
+        this.$message({
+          type: 'info',
+          message: '取消删除'
+        })
       }
     },
     // 修改角色
