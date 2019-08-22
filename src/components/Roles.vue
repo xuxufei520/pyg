@@ -14,6 +14,7 @@
     <el-table :data="rolesList" style="width: 100%">
       <el-table-column type="expand">
         <template v-slot:default="{row}">
+          <p v-if='row.children.length===0'>暂无权限</p>
           <el-row class='item' v-for="item in row.children" :key="item.id">
             <el-col :span="4"><el-tag closable @close='delRight(row,item.id)'>{{item.authName}}</el-tag><i class="el-icon-arrow-right"></i></el-col>
             <el-col :span="20">
@@ -33,7 +34,7 @@
       <el-table-column label="操作">
         <template v-slot:default="{row}">
           <el-button type="primary" size="small" plain icon="el-icon-edit" @click="updateRoles(row)"></el-button>
-          <el-button type="danger" size="small" plain icon="el-icon-delete" @click="delRoles(row.id)"></el-button>
+          <el-button type="danger" size="small" plain icon="el-icon-delete" @click="delRoles(row.id,$event)"></el-button>
           <el-button type="success" size="small" plain icon="el-icon-check" @click="assignRight(row)">分配权限</el-button>
         </template>
       </el-table-column>
@@ -47,7 +48,7 @@
         <el-button type="primary" @click="assignRoles">分 配</el-button>
       </span>
     </el-dialog>
-    <!-- 修改角色模态框 -->
+    <!-- 添加和修改角色模态框 -->
     <el-dialog :title="dialogTitle" :visible.sync="updateDialog" width="40%" @closed='clearBox("rolesForm")'>
       <!-- 表单 -->
       <el-form :model="rolesForm" :rules="updateRules" ref="rolesForm" label-width="100px" class="demo-rolesForm">
@@ -60,7 +61,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
       <el-button @click="updateDialog = false">取 消</el-button>
-      <el-button type="primary" @click="updateRolesOk">确 定</el-button>
+      <el-button type="primary" @click="updateRolesOk('rolesForm')">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -110,8 +111,8 @@ export default {
       },
       // 修改用户
       updateRules: {
-        roleName: [{ required: true, message: '角色名称不为空', trigger: 'blur' }],
-        roleDesc: [{ required: true, message: '角色描述不为空', trigger: 'blur' }]
+        roleName: [{ required: true, message: '角色名称不为空', trigger: ['blur', 'change'] }],
+        roleDesc: [{ required: true, message: '角色描述不为空', trigger: ['blur', 'change'] }]
       }
 
     }
@@ -154,6 +155,7 @@ export default {
         this.assignRightTree = data
         // 数据回显
         // console.log(row)
+        this.checkedBox = []
         row.children.forEach(item => {
           item.children.forEach(item2 => {
             item2.children.forEach(item3 => {
@@ -186,6 +188,7 @@ export default {
       if (meta.status === 200) {
         this.$message.success(meta.msg)
         this.getRolesList()
+        // this.$router.go(0)
       } else {
         this.$message.error(meta.msg)
       }
@@ -194,11 +197,18 @@ export default {
     clearBox (formName) {
       this.checkedBox = []
       this.rid = 0
-      this.$refs[formName].resetFields()
+      if (formName) { this.$refs[formName].resetFields() }
     },
     // 删除角色
-    async delRoles (id) {
-      console.log(id)
+    async delRoles (id, e) {
+      // console.log(id)
+      // 让按钮失去焦点
+      // console.log(e.target)
+      // if (e.nodeName === 'BUTTON') {
+      //   e.target.blur()
+      // } else {
+      //   e.target.parentNode.blur()
+      // }
       try {
         await this.$confirm('你确定要删除该角色吗?', '温馨提示', { type: 'warning' })
         const { meta } = await this.$axios.delete(`roles/${id}`)
@@ -221,31 +231,30 @@ export default {
       console.log(row)
       this.dialogTitle = '修改角色'
       this.updateDialog = true
-      this.rid = row.id
-      this.rolesForm.roleName = row.roleName
-      this.rolesForm.roleDesc = row.roleDesc
+      // 后期关闭模态框时会还原到初始状态 此时初始状态不能有数据
+      this.$nextTick(() => {
+        this.rid = row.id
+        this.rolesForm.roleName = row.roleName
+        this.rolesForm.roleDesc = row.roleDesc
+      })
     },
     // 确认修改
-    async updateRolesOk () {
-      this.updateDialog = false
-      if (this.dialogTitle === '修改角色') {
-        const { data, meta } = await this.$axios.put(`roles/${this.rid}`, this.rolesForm)
-        console.log(data)
-        if (meta.status === 200) {
-          this.$message.success(meta.msg)
+    async updateRolesOk (formName) {
+      // 确认非空后发axios
+      try {
+        await this.$refs[formName].validate()
+        const url = this.dialogTitle === '修改角色' ? `roles/${this.rid}` : 'roles'
+        const method = this.dialogTitle === '修改角色' ? 'put' : 'post'
+        const { meta } = await this.$axios[method](url, this.rolesForm)
+        if (meta.status === 200 || meta.status === 201) {
+          this.$message.success('操作成功')
+          this.updateDialog = false
           this.getRolesList()
         } else {
-          this.$message.error(meta.msg)
+          this.$message.error('操作失败')
         }
-      }
-      if (this.dialogTitle === '添加角色') {
-        const { data, meta } = await this.$axios.post(`roles`, this.rolesForm)
-        console.log(data, meta)
-        if (meta.status === 201) {
-          this.$message.success(meta.msg)
-        } else {
-          this.$message.error(meta.msg)
-        }
+      } catch (error) {
+        this.$message.error('请填写完整信息')
       }
     },
     // 添加角色

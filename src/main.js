@@ -22,7 +22,12 @@ axios.interceptors.request.use(config => {
 
 // 添加响应拦截器
 axios.interceptors.response.use(function (response) {
-  return response.data
+  // console.log(response)
+  response = response.data
+  if (response.meta.status === 401) {
+    router.push({ name: 'login' })
+  }
+  return response
 }, function (error) {
   return Promise.reject(error)
 })

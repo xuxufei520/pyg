@@ -40,10 +40,12 @@ export default {
       try {
         await this.$refs.form.validate()
         const { meta, data } = await this.$axios.post('login', this.form)
+        console.log(data)
         if (meta.status === 200) {
           localStorage.setItem('token', data.token)
-          this.$message({ message: meta.msg, type: 'success', duration: 1000 })
-          this.$router.push({ name: 'index' })
+          this.$message({ message: meta.msg + '! 欢迎' + data.username, type: 'success', duration: 1000 })
+          // this.$router.push({ name: 'index' })
+          this.$router.push('/index?username=' + data.username + '&rid=' + data.rid)
         } else {
           this.$message.error(meta.msg)
         }

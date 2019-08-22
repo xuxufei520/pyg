@@ -10,7 +10,7 @@
         <h1>电商后台管理系统</h1>
       </div>
       <div class="msg">
-        <span class="welcome">欢迎光临~</span>
+        <span class="welcome"><i class="currentUsername">{{username}}</i>{{roleName}} 欢迎光临~</span>
         <a href="javascript:;" @click="logout" class="logout">退出</a>
       </div>
     </el-header>
@@ -56,13 +56,31 @@ export default {
           order: 0,
           path: ''
         }
-      ]
+      ],
+      username: '',
+      rid: 0,
+      roleName: ''
     }
   },
-  created () {
+  async created () {
     this.getMenus()
+    this.getUserinfo()
+    console.log(this.rid, this.username)
+    if (this.rid === 0) return
+    const { meta, data } = await this.$axios.get(`roles/${this.rid}`)
+    console.log(data)
+    if (meta.status === 200) {
+      this.roleName = '(' + data.roleName + ')'
+    } else {
+      this.roleName = ''
+    }
   },
   methods: {
+    // 用户名右上角显示体验优化
+    getUserinfo () {
+      this.username = this.$route.query.username || ''
+      this.rid = this.$route.query.rid || 0
+    },
     async logout () {
       // 模态框 清token
       try {
@@ -76,6 +94,7 @@ export default {
         this.$message('取消退出')
       }
     },
+    // 请求侧边栏
     async getMenus () {
       const { data, meta } = await this.$axios.get('menus')
       if (meta.status === 200) {
@@ -85,12 +104,12 @@ export default {
         this.$message.error(meta.msg)
       }
     }
+  },
+  computed: {
+    // getStr (num) {
+    //   return num + ''
+    // }
   }
-  // computed: {
-  //   getStr (num) {
-  //     return num + ''
-  //   }
-  // }
 }
 </script>
 
@@ -115,6 +134,11 @@ export default {
     }
     .msg {
       font-weight: 700;
+      .currentUsername{
+        // font-weight: 400;
+        font-size: 14px ;
+        color : purple;
+      }
       .logout {
         color: orange;
       }

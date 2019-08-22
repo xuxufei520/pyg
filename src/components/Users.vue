@@ -303,6 +303,7 @@ export default {
     // 修改用户信息
     async updateUser (id) {
       this.dialogUpdateFormVisible = true
+      // 回显
       const { data, meta } = await this.$axios.get(`users/${id}`)
       // console.log(data, meta)
       if (meta.status === 200) {
@@ -316,10 +317,8 @@ export default {
       // 表单效验
       try {
         await this.$refs[updateForm].validate()
-        const { meta } = await this.$axios.put(
-          `users/${this.updateForm.id}`,
-          this.updateForm
-        )
+        // 换元表单项
+        const { meta } = await this.$axios.put(`users/${this.updateForm.id}`, this.updateForm)
         if (meta.status === 200) {
           this.dialogUpdateFormVisible = false
           this.getUsers()
@@ -332,36 +331,33 @@ export default {
     },
     // 分配角色功能
     async role (row) {
-      // 数据回显
       this.dialogRoleFormVisible = true
-      this.roleForm.rid = ''
-      // axios获取当前用户信息
-      // console.log(row)
+      // 数据回显
       this.roleForm.username = row.username
       this.roleForm.id = row.id
-      // 根据id查询角色信息 渲染当前角色显示在下拉框默认项
-      const { meta, data } = await this.$axios.get(`users/${row.id}`)
-      console.log(meta, data)
-      if (meta.status === 200 && data.rid > 0) {
-        this.roleForm.rid = data.rid
-      }
-      console.log(this.roleForm.rid)
       // 动态渲染所有角色到下拉菜单
       const { meta: meta2, data: data2 } = await this.$axios.get(`roles`)
       if (meta2.status === 200) {
         this.roleForm.options = data2
       }
+      // 回显下拉框=====根据id查询角色信息  渲染当前角色显示在下拉框默认项
+      this.roleForm.rid = '' // 先还原到默认值
+      const { meta, data } = await this.$axios.get(`users/${row.id}`)
+      console.log(meta, data)
+      if (meta.status === 200 && data.rid >= 0) {
+        this.roleForm.rid = data.rid
+      }
+      // console.log(this.roleForm.rid)
     },
-    // 分配角色 点击确定 效验内容 发送axios 然后还原表单(这个功能在上边点击显示模态框中渲染前首先还原)
+    // 分配角色 点击确定 效验内容 发送axios 然后还原表单(这个功能在上边点击显示模态框中渲染前已经还原)
     async submitRole () {
-      console.log(this.roleForm.rid)
-      if (this.roleForm.rid === '') return this.$message.error('请选择角色')
-      this.dialogRoleFormVisible = false
-      const { meta } = await this.$axios.put(`users/${this.roleForm.id}/role`, {
-        rid: this.roleForm.rid
-      })
+      // console.log(this.roleForm.rid)
+      const rid = this.roleForm.rid
+      if (rid === '') return this.$message.error('请选择角色')
+      const { meta } = await this.$axios.put(`users/${this.roleForm.id}/role`, { rid })
       if (meta.status === 200) {
         this.$message.success(meta.msg)
+        this.dialogRoleFormVisible = false
         this.getUsers()
       } else {
         this.$message.error(meta.msg)
@@ -369,7 +365,9 @@ export default {
     },
     // 关闭模态框的时候清空表单
     resetForm (formName) {
-      this.$refs[formName].resetFields()
+      if (formName) {
+        this.$refs[formName].resetFields()
+      }
     }
   }
 }
