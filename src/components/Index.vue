@@ -65,10 +65,10 @@ export default {
   async created () {
     this.getMenus()
     this.getUserinfo()
-    console.log(this.rid, this.username)
+    // console.log(this.rid, this.username)
     if (this.rid === 0) return
     const { meta, data } = await this.$axios.get(`roles/${this.rid}`)
-    console.log(data)
+    // console.log(data)
     if (meta.status === 200) {
       this.roleName = '(' + data.roleName + ')'
     } else {
@@ -98,7 +98,7 @@ export default {
     async getMenus () {
       const { data, meta } = await this.$axios.get('menus')
       if (meta.status === 200) {
-        console.log(data)
+        // console.log(data)
         this.menusData = data
       } else {
         this.$message.error(meta.msg)

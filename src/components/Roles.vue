@@ -6,7 +6,7 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
-    <!-- 输入框 -->
+    <!-- 按钮 -->
     <div style="margin-top: 15px;margin-bottom: 15px">
       <el-button type="success" plain @click="addRoles">添加角色</el-button>
     </div>
