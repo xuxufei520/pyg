@@ -5,8 +5,9 @@ import Index from './components/Index.vue'
 import Users from './components/users/Users.vue'
 import Roles from './components/rights/Roles.vue'
 import Rights from './components/rights/Rights.vue'
-import Goods from './components/goods/Goods.vue'
-import goodsAdd from './components/goods/goodsAdd.vue'
+import Goods from './components/produces/Goods.vue'
+import GoodsAdd from './components/produces/GoodsAdd.vue'
+import Categories from './components/produces/Categories.vue'
 Vue.use(Router)
 const router = new Router({
   routes: [
@@ -26,7 +27,8 @@ const router = new Router({
         { path: '/roles', name: 'roles', component: Roles },
         { path: '/rights', name: 'rights', component: Rights },
         { path: '/goods', name: 'goods', component: Goods },
-        { path: '/goods-add', name: 'goodsAdd', component: goodsAdd }
+        { path: '/goods-add', name: 'goodsAdd', component: GoodsAdd },
+        { path: '/categories', name: 'categories', component: Categories }
       ]
     }
   ]
