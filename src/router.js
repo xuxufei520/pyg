@@ -2,11 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from './components/Login.vue'
 import Index from './components/Index.vue'
-import Users from './components/Users.vue'
-import Roles from './components/Roles.vue'
-import Rights from './components/Rights.vue'
-import Goods from './components/Goods.vue'
-import goodsAdd from './components/goodsAdd.vue'
+import Users from './components/users/Users.vue'
+import Roles from './components/rights/Roles.vue'
+import Rights from './components/rights/Rights.vue'
+import Goods from './components/goods/Goods.vue'
+import goodsAdd from './components/goods/goodsAdd.vue'
 Vue.use(Router)
 const router = new Router({
   routes: [

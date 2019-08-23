@@ -23,6 +23,7 @@
           class="el-menu-vertical-demo"
           background-color="#545c64"
           text-color="#fff"
+          :default-active="defaultActive"
           active-text-color="orange"
           unique-opened
           router >
@@ -81,6 +82,7 @@ export default {
       this.username = this.$route.query.username || ''
       this.rid = this.$route.query.rid || 0
     },
+    // logout 功能
     async logout () {
       // 模态框 清token
       try {
@@ -109,6 +111,9 @@ export default {
     // getStr (num) {
     //   return num + ''
     // }
+    defaultActive () {
+      return this.$route.path.slice(1).split('-')[0]
+    }
   }
 }
 </script>

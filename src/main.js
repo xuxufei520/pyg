@@ -4,6 +4,7 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
+import moment from 'moment'
 
 Vue.use(ElementUI)
 Vue.config.productionTip = false
@@ -30,6 +31,9 @@ axios.interceptors.response.use(function (response) {
   return response
 }, function (error) {
   return Promise.reject(error)
+})
+Vue.filter('getTime', (val) => {
+  return moment(val * 1000).format('YYYY年MM月DD日 HH:mm:ss')
 })
 
 new Vue({

@@ -6,11 +6,15 @@
     </div>
      <!-- 表格 -->
     <el-table :data="goodsList" style="width: 100%">
-      <el-table-column  type="index" width="50"> </el-table-column>
+      <el-table-column  type="index" width="50" :index='indexMethod'> </el-table-column>
       <el-table-column prop="goods_name" label="商品名称"></el-table-column>
       <el-table-column prop="goods_price" label="商品价格"></el-table-column>
       <el-table-column prop="goods_weight" label="商品重量"></el-table-column>
-      <el-table-column prop="add_time" label="创建时间"></el-table-column>
+      <el-table-column label="创建时间">
+        <template v-slot:default='{row}'>
+        {{row.add_time|getTime}}
+        </template>
+      </el-table-column>
       <el-table-column label="操作">
         <template v-slot:default='{row}'>
          <el-button type="primary" size="small" plain icon="el-icon-edit"></el-button>
@@ -86,6 +90,10 @@ export default {
     // 添加商品操作
     goodsAdd () {
       this.$router.push({ name: 'goodsAdd' })
+    },
+    // 自定义的table序号
+    indexMethod (index) {
+      return index + 1 + (this.pagenum - 1) * this.pagesize
     }
   }
 
