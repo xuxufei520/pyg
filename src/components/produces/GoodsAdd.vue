@@ -24,17 +24,22 @@
             <el-input v-model="goodsForm.goods_number" placeholder="请输入商品数量"></el-input>
           </el-form-item>
           <el-form-item label="商品分类">
-            <el-cascader v-model="chooseValue" :options="options" :props='props' @change="handleChange"></el-cascader>
+            <el-cascader v-model="goodsForm.goods_cat" :options="options" :props='props' @change="handleChange"></el-cascader>
           </el-form-item>
         </el-form>
       </el-tab-pane>
       <!-- 步骤二上传图片 -->
       <el-tab-pane label="商品图片" name="2">
         <el-upload
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action="http://localhost:8888/api/private/v1/upload"
           list-type="picture-card"
+          :file-list = 'goodsForm.pics'
+          multiple
+          :on-progress='uploadPic'
+          :on-success='picSuccess'
           :on-preview="handlePictureCardPreview"
-          :on-remove="handleRemove" >
+          :on-remove="handleRemove"
+          >
           <i class="el-icon-plus"></i>
         </el-upload>
         <el-dialog :visible.sync="dialogVisible">
@@ -44,7 +49,7 @@
       <!-- 步骤三 (富文本) -->
       <el-tab-pane label="商品内容" name="3" class="step3">
         <!-- <div> -->
-        <quill-editor ref="myTextEditor" v-model="content" :config="editorOption"></quill-editor>
+        <quill-editor ref="myTextEditor" v-model="goodsForm.goods_introduce" :config="editorOption"></quill-editor>
         <!-- </div> -->
       </el-tab-pane>
       <!-- 按钮-步骤条联动 -->
@@ -72,10 +77,10 @@ export default {
       active: 0,
       // 分页切换
       avtiveTab: '1',
-      // 步骤一表单数据
+      // 步骤一表单数据=====三步全
       goodsForm: {
         goods_name: '',
-        goods_cat: '',
+        goods_cat: [],
         goods_price: '',
         goods_number: '',
         goods_weight: '',
@@ -106,11 +111,11 @@ export default {
         value: 'cat_id',
         children: 'children'
       },
-      // 级联选择器选中项
-      chooseValue: '',
       // 步骤二上传图片
       dialogImageUrl: '',
       dialogVisible: false,
+      // 上传图片的信息
+      fileList: [],
       // 步骤三 富文本
       content: '', // 编辑器的内容
       editorOption: { // 编辑器的配置
@@ -126,7 +131,7 @@ export default {
     // 请求添加商品分类数据回显
     async getAddGoodsList () {
       const { meta, data } = await this.$axios.get('categories', { params: { type: 3 } })
-      console.log(data)
+      // console.log(data)
       if (meta.status === 200) {
         this.options = data
       } else {
@@ -137,7 +142,7 @@ export default {
     next () {
       if (this.active++ > 2) this.active = 0
       this.avtiveTab = (+this.avtiveTab + 1).toString()
-      console.log(this.activeTab)
+      // console.log(this.activeTab)
     },
     // 点击标签切换步骤
     toggleStep (e) {
@@ -151,16 +156,40 @@ export default {
       // this.goodsForm.goods_cat = value
     },
     // 步骤二上传图片
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
+    // 点击上传图片
+    uploadPic (event, file, fileList) {
+      // console.log('upload')
+      // console.log(event)
+      // console.log(file)
+      // console.log(fileList)
     },
+    // 图片上传成功
+    picSuccess (response, file, fileList) {
+      console.log('success')
+      // console.log(response)
+      console.log(file)
+      this.goodsForm.pics.push(file)
+      console.log(this.goodsForm.pics)
+    },
+    // 删除图片
+    handleRemove (file, fileList) {
+      console.log('remove')
+      console.log(file, fileList)
+      console.log(this.goodsForm.pics)
+    },
+    // 预览图片
     handlePictureCardPreview (file) {
+      console.log('preview')
+      console.log(file)
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
     // 添加商品 提交信息
-    addGoods () {
+    async addGoods () {
       // 验证表单
+      console.log(this.goodsForm)
+      const { meta, data } = await this.$axios.post('goods', this.goodsForm)
+      console.log(meta, data)
     }
   }
 }
