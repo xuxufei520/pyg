@@ -5,9 +5,24 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 import moment from 'moment'
-
+import Vuex from 'vuex'
+Vue.use(Vuex)
 Vue.use(ElementUI)
+// 生产提示
 Vue.config.productionTip = false
+// 全局注册vuex
+const store = new Vuex.Store({
+  state: {
+    username: '',
+    roleName: ''
+  },
+  mutations: {
+    getUsername (state, info) {
+      state.username = info.username
+      state.roleName = info.roleName
+    }
+  }
+})
 // 全局挂载axios
 Vue.prototype.$axios = axios
 // axios默认值
@@ -38,5 +53,6 @@ Vue.filter('getTime', (val) => {
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')

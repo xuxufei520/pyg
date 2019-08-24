@@ -9,8 +9,8 @@
       <div class="title">
         <h1>电商后台管理系统</h1>
       </div>
-      <div class="msg">
-        <span class="welcome"><i class="currentUsername">{{username}}</i>{{roleName}} 欢迎光临~</span>
+      <div class="msg" v-once>
+        <span class="welcome"><i class="currentUsername">{{$store.state.username}}</i>{{roleName}} 欢迎光临~</span>
         <a href="javascript:;" @click="logout" class="logout">退出</a>
       </div>
     </el-header>
@@ -58,7 +58,6 @@ export default {
           path: ''
         }
       ],
-      username: '',
       rid: 0,
       roleName: ''
     }
@@ -79,7 +78,6 @@ export default {
   methods: {
     // 用户名右上角显示体验优化
     getUserinfo () {
-      this.username = this.$route.query.username || ''
       this.rid = this.$route.query.rid || 0
     },
     // logout 功能

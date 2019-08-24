@@ -44,8 +44,8 @@ export default {
         if (meta.status === 200) {
           localStorage.setItem('token', data.token)
           this.$message({ message: meta.msg + '! 欢迎' + data.username, type: 'success', duration: 1000 })
-          // this.$router.push({ name: 'index' })
-          this.$router.push('/index?username=' + data.username + '&rid=' + data.rid)
+          this.$store.commit('getUsername', { username: data.username })
+          this.$router.push({ name: 'index' })
         } else {
           this.$message.error(meta.msg)
         }

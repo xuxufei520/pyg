@@ -9,7 +9,7 @@
     <!-- 标签页 -->
     <el-tabs v-model="avtiveTab" tab-position="left" @tab-click="toggleStep" stretch>
       <!-- 步骤一填写表单 -->
-      <el-tab-pane label="基本信息" name="1">
+      <el-tab-pane label="基本信息" name="0">
         <el-form ref="goodsForm" :model="goodsForm" label-width="80px">
           <el-form-item label="商品名称">
             <el-input v-model="goodsForm.goods_name" placeholder="请输入商品名称"></el-input>
@@ -29,13 +29,13 @@
         </el-form>
       </el-tab-pane>
       <!-- 步骤二上传图片 -->
-      <el-tab-pane label="商品图片" name="2">
+      <el-tab-pane label="商品图片" name="1">
         <el-upload
+          :headers="headers"
+          name="file"
           action="http://localhost:8888/api/private/v1/upload"
           list-type="picture-card"
-          :file-list = 'goodsForm.pics'
           multiple
-          :on-progress='uploadPic'
           :on-success='picSuccess'
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
@@ -47,9 +47,9 @@
         </el-dialog>
       </el-tab-pane>
       <!-- 步骤三 (富文本) -->
-      <el-tab-pane label="商品内容" name="3" class="step3">
+      <el-tab-pane label="商品内容" name="2">
         <!-- <div> -->
-        <quill-editor ref="myTextEditor" v-model="goodsForm.goods_introduce" :config="editorOption"></quill-editor>
+        <quill-editor ref="myTextEditor" v-model="goodsForm.goods_introduce"></quill-editor>
         <!-- </div> -->
       </el-tab-pane>
       <!-- 按钮-步骤条联动 -->
@@ -60,11 +60,7 @@
 </template>
 
 <script>
-// require styles
-// import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
-// import 'quill/dist/quill.bubble.css'
-
 import { quillEditor } from 'vue-quill-editor'
 export default {
   created () {
@@ -76,8 +72,8 @@ export default {
       // 步骤条已完成
       active: 0,
       // 分页切换
-      avtiveTab: '1',
-      // 步骤一表单数据=====三步全
+      avtiveTab: '0',
+      // 步骤一表单数据=====三步全部的数据
       goodsForm: {
         goods_name: '',
         goods_cat: [],
@@ -114,13 +110,9 @@ export default {
       // 步骤二上传图片
       dialogImageUrl: '',
       dialogVisible: false,
-      // 上传图片的信息
-      fileList: [],
-      // 步骤三 富文本
-      content: '', // 编辑器的内容
-      editorOption: { // 编辑器的配置
-        // something config
-        // shadeBox: null,
+      // 上传图片的请求头
+      headers: {
+        Authorization: localStorage.getItem('token')
       }
     }
   },
@@ -140,8 +132,8 @@ export default {
     },
     // 步骤条下一步控件
     next () {
-      if (this.active++ > 2) this.active = 0
-      this.avtiveTab = (+this.avtiveTab + 1).toString()
+      this.active++
+      this.avtiveTab = this.active + ''
       // console.log(this.activeTab)
     },
     // 点击标签切换步骤
@@ -156,50 +148,54 @@ export default {
       // this.goodsForm.goods_cat = value
     },
     // 步骤二上传图片
-    // 点击上传图片
-    uploadPic (event, file, fileList) {
-      // console.log('upload')
-      // console.log(event)
-      // console.log(file)
-      // console.log(fileList)
-    },
-    // 图片上传成功
     picSuccess (response, file, fileList) {
-      console.log('success')
-      // console.log(response)
-      console.log(file)
-      this.goodsForm.pics.push(file)
-      console.log(this.goodsForm.pics)
+      // console.log('success')
+      // console.log(response, 'res')
+      if (response.meta.status === 200) {
+        const path = response.data.tmp_path
+        this.goodsForm.pics.push({ pic: path })
+      }
     },
     // 删除图片
     handleRemove (file, fileList) {
       console.log('remove')
-      console.log(file, fileList)
+      const path = file.response.data.tmp_path
+      this.goodsForm.pics = this.goodsForm.pics.filter(v => v.pic !== path)
       console.log(this.goodsForm.pics)
     },
     // 预览图片
     handlePictureCardPreview (file) {
-      console.log('preview')
-      console.log(file)
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
     // 添加商品 提交信息
     async addGoods () {
       // 验证表单
-      console.log(this.goodsForm)
-      const { meta, data } = await this.$axios.post('goods', this.goodsForm)
-      console.log(meta, data)
+      const { meta } = await this.$axios.post('goods', {
+        ...this.goodsForm,
+        goods_cat: this.goodsForm.goods_cat.join(',')
+      })
+      // console.log(meta, data)
+      if (meta.status === 201) {
+        this.$message.success(meta.msg)
+        // 跳转页面到goods
+        this.$router.push({ name: 'goods' })
+      } else {
+        this.$message.error(meta.msg)
+      }
     }
   }
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss' >
 
   .goods-add{
-    .step3{
+    .quill-editor{
       background-color: #fff;
+      .ql-editor {
+        min-height : 300px ;
+      }
     }
   }
 
